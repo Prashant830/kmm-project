@@ -12,5 +12,4 @@ class IosKtorEngineProvider : KtorEngineProvider {
 
 actual fun getPlatform(): Platform = IOSPlatform()
 
-actual fun getEngine(): KtorEngineProvider = IosKtorEngineProvider()
-
+actual fun getEngine():KtorEngineProvider =  IosKtorEngineProvider()

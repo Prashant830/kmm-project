@@ -3,22 +3,32 @@ import Shared
 
 struct ContentView: View {
     @State private var showContent = false
+    @State private var value: String = ""
+
+    // Initialize Greeting instance
+    let greeting = Greeting()
+
     var body: some View {
         VStack {
             Button("Click me!") {
                 withAnimation {
-                    showContent = !showContent
+                    showContent.toggle()
                 }
             }
 
             if showContent {
                 VStack(spacing: 16) {
-//                    Image(systemName: "swift")
-//                        .font(.system(size: 200))
-//                        .foregroundColor(.accentColor)
-                    Text("SwiftUI: \(Greeting().greetWithPosts())")
+                    
+                    Text("SwiftUI: \(value)")
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .onAppear {
+            // Call greetWithPosts to fetch data
+            greeting.greetWithPosts { result in
+                // Update the value state when data is fetched
+                self.value = result
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

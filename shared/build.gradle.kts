@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -9,16 +10,32 @@ plugins {
 
 }
 
+
+
 kotlin {
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            commonWebpackConfig {
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.projectDir.path)
+                    }
+                }
+            }
+        }
+    }
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-
-
-
+    
+    jvm()
+    
     listOf(
         iosX64(),
         iosArm64(),
@@ -31,28 +48,28 @@ kotlin {
     }
 
     sourceSets {
-
         commonMain.dependencies {
-            implementation("io.ktor:ktor-client-core:2.0.0")
-            implementation("io.ktor:ktor-client-cio:2.0.0")
-            implementation("io.ktor:ktor-client-content-negotiation:2.0.0")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
-
-//    implementation("io.ktor:ktor-client-android:2.3.2")
-
-//
+            implementation(libs.bundles.ktor.common)
         }
 
         androidMain.dependencies {
-            implementation("io.ktor:ktor-client-cio:2.0.0")
-            implementation("io.ktor:ktor-client-okhttp:2.3.2")
+            implementation("io.ktor:ktor-client-android:3.0.0-wasm2")
+//            implementation("io.ktor:ktor-client-cio:3.0.0-wasm2")
+            implementation("io.ktor:ktor-client-okhttp:3.0.0-wasm2")
 //
         }
 
         iosMain.dependencies {
             implementation(libs.ktor.client.ios)
+
         }
+
+
+        jvmMain.dependencies {
+            implementation("io.ktor:ktor-client-apache:2.3.2")
+
+        }
+
     }
 }
 
@@ -67,4 +84,3 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
 }
-

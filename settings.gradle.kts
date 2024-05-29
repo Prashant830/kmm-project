@@ -1,4 +1,4 @@
-rootProject.name = "onlyIosAndAndroid"
+rootProject.name = "sampleWIAD"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -15,8 +15,12 @@ pluginManagement {
     }
 }
 
+
+
 dependencyResolutionManagement {
     repositories {
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
+
         google {
             mavenContent {
                 includeGroupAndSubgroups("androidx")

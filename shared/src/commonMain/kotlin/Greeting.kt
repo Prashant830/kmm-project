@@ -1,16 +1,15 @@
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-
 import io.ktor.client.*
+import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngineFactory
-
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -33,28 +32,32 @@ fun createHttpClient(engineProvider: KtorEngineProvider): HttpClient {
     }
 }
 
-class Greeting()  {
+class Greeting {
     private val platformName = getPlatform()
     private val engineProvider = getEngine()
-
     private val client = createHttpClient(engineProvider)
 
     fun greet(): String {
         return "Hello, $platformName!"
     }
 
-    fun greetWithPosts(): String = runBlocking {
-        val response: HttpResponse = fetchPosts()
-        if (response.status == HttpStatusCode.OK) {
-            val posts: List<Post> = response.body()
-            val firstPost = posts.firstOrNull()
-            if (firstPost != null) {
-                "\nHere's the first post: from Api response -> ${firstPost.title}"
-            } else {
-                "Hello, $platformName! No posts found."
+    fun greetWithPosts(callback: (String) -> Unit) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val message = withContext(Dispatchers.Default) {
+                val response = fetchPosts()
+                if (response.status == HttpStatusCode.OK) {
+                    val posts: List<Post> = response.body()
+                    val firstPost = posts.firstOrNull()
+                    if (firstPost != null) {
+                        "\nHere's the first post from Api response -> ${firstPost.title}"
+                    } else {
+                        "Hello, $platformName! No posts found."
+                    }
+                } else {
+                    "Hello, $platformName! Failed to fetch posts."
+                }
             }
-        } else {
-            "Hello, $platformName! Failed to fetch posts."
+            callback(message)
         }
     }
 
@@ -62,5 +65,8 @@ class Greeting()  {
         return client.get("https://jsonplaceholder.typicode.com/posts")
     }
 
-/**/
+
 }
+
+// Example usage (adjust as necessary depending on your context):
+// greeting.greetWithPosts { message -> println(message) }
