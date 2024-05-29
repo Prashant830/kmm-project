@@ -1,6 +1,5 @@
 import io.ktor.client.*
 import io.ktor.client.call.body
-import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -47,12 +46,8 @@ class Greeting {
                 val response = fetchPosts()
                 if (response.status == HttpStatusCode.OK) {
                     val posts: List<Post> = response.body()
-                    val firstPost = posts.firstOrNull()
-                    if (firstPost != null) {
-                        "\nHere's the first post from Api response -> ${firstPost.title}"
-                    } else {
-                        "Hello, $platformName! No posts found."
-                    }
+                    val firstPost = posts.toString()
+                    "\nHere's the first post from Api response -> ${firstPost.toString()}"
                 } else {
                     "Hello, $platformName! Failed to fetch posts."
                 }
